@@ -97,3 +97,49 @@ subsequent repair-verification verdict should remain distinguishable.
 The HTTP server is a small local demonstration, not a production API. It has no
 authentication, database, customer secrets, external integrations, or model calls.
 It uses only Python's standard library plus Pydantic and its pinned dependencies.
+
+## Prepare this repo for ProofRun
+
+From `main`, use Python 3.12, Git, and a running Docker daemon:
+
+```sh
+docker pull python:3.12-slim
+python3.12 scripts/prepare_proofrun.py
+```
+
+The helper builds both tagged releases from their committed Git trees, runs the
+original tests in each image as an unprivileged user with no network, and writes
+`.proofrun/setup/targets.json`, `request.json`, and `setup.json`. It resolves the
+trusted collector image to an immutable ID. Generated files remain local and
+ignored by Git. The helper does not call a model or deploy a repair. For another
+preparation, choose a fresh `--output .proofrun/setup-02` directory.
+
+The registry includes the real local repository path, exact revision hashes,
+immutable Docker image IDs, startup/test commands, and a general compatibility
+requirement. The presenter README and setup scripts are excluded from agent
+inspection; the product contract and application source remain included. No
+predeclared failing request or prepared repair is passed to the investigator.
+
+In the separate ProofRun checkout, after installing its worker dependencies and
+exporting your private `OPENROUTER_API_KEY` and explicit `PROOFRUN_MODEL`, run:
+
+```sh
+python3.12 -m src.proofrun.release_api \
+  --targets ../proofrun-demo-customer-import/.proofrun/setup/targets.json \
+  --once ../proofrun-demo-customer-import/.proofrun/setup/request.json \
+  --artifacts .commit-watch/proofrun-demo-customer-import-run-01
+```
+
+These relative paths assume the two checkouts are siblings. Use an absolute path
+if yours are elsewhere. Select a new artifact directory for every run. A `skip`
+verdict exits with code 2; inspect the result artifacts rather than treating that
+exit as absence of results. Model access can incur your provider's normal costs.
+Do not put keys in this demo repository or in its Docker images.
+
+The default target scope is `operator` for local use. Set `--scope WORKSPACE_ID`
+when preparing it for an authorized portal workspace. Portal initiation, remote
+hosting, and staging replay require their own actual configuration and evidence.
+
+The default `main` branch contains the working app and setup helper. The
+`demo-baseline` and `demo-update` tags stay fixed to the original two releases;
+the helper always compares those tags, regardless of later setup-doc changes.

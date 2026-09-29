@@ -1,0 +1,12 @@
+{
+  "id": "demo-customer-import",
+  "name": "Customer import demo",
+  "module": "customer_service.server",
+  "endpoint": "/customers/import",
+  "image_name": "proofrun-demo-customer-import",
+  "repair_paths": [
+    "customer_service/models.py"
+  ],
+  "requirement": "Preserve the HTTP status and response body for synthetic customer import and validation requests under the documented customer input contract.",
+  "benefit": "Evaluate the dependency modernization while preserving the customer import workflow."
+}
